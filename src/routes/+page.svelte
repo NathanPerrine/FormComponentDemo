@@ -1,39 +1,25 @@
 <script lang="ts">
-    function isFormValid(data: {[fieldName: string]: any}): boolean {
-        if(!isRequiredFieldValid(data.email)){
-            return false
-        }
+    import { Validators } from '../lib/components/Validators';
+    import Form from '../lib/components/Form.svelte'
+    import Input from '../lib/components/Input.svelte'
+    import Error from '../lib/components/Error.svelte'
 
-        if(!isRequiredFieldValid(data.password)) {
-            return false
-        }
-        return true
-    }
+    let formEl: HTMLFormElement;
+    let form = {
+        email: {
+            validators: [Validators.required],
+        },
+        password: {
+            validators: [Validators.required, Validators.minLength(6)],
+        },
+    };
 
-    function isRequiredFieldValid(value: any){
-        console.log(value != null && value !== "", "isRequiredFieldValid")
-        return value != null && value !== ""
-    }
-
-    // function onSubmit(e: SubmitEvent){
-    function onSubmit(e: SubmitEvent){
-        const formData = new FormData(e.target as HTMLFormElement);
-        const resetForm = e.target as HTMLFormElement;
-
-        console.log(formData)
-
-        const data: Record<string, FormDataEntryValue> = {};
-        for (let field of formData) {
-            const [key, value] = field;
-            data[key] = value;
-        }
-        if(isFormValid(data)){
-            console.log(data)
-
-            // e.target?.reset();
-            resetForm.reset()
+    function onSubmit(e: any) {
+        if (e?.detail?.valid) {
+            console.log(e.detail.data);
+            setTimeout(() => formEl.reset(), 1000)
         } else {
-            console.log("Invalid form")
+            console.log('Invalid Form');
         }
     }
 
@@ -41,61 +27,34 @@
 </script>
 
 <main>
-    <form on:submit|preventDefault={onSubmit}>
+    <form on:submit|preventDefault={onSubmit} bind:this={formEl}>
         <div>
-            <label for="name">Email</label>
-            <input
-            type="text"
-            id="email"
-            name="email"
-            value=""
+            <Input label="Email" name="email" />
+            <Error
+                fieldName="email"
+                errorKey="required"
+                message="Email is required"
             />
         </div>
         <div>
-        <label for="name">Password</label>
-        <input
-            type="password"
-            id="password"
-            name="password"
-            value=""
-        />
-    </div>
+            <Input label="Password" name="password" />
+            <Error
+                fieldName="password"
+                errorKey="required"
+                message="Password is required"
+            />
+            <Error fieldName="password" errorKey="minLength" />
+        </div>
         <button type="submit">Submit</button>
     </form>
 </main>
 
-
-
-
-
-
-
-
-
-
-
-
-
-  <style>
-     * {
+<style>
+    * {
         box-sizing: border-box;
-      }
-      form {
-        display: flex;
-        flex-direction: column;
-        width: 300px;
-      }
+    }
 
-      form > div{
-        display: flex;
-        justify-content: space-between;
-      }
-
-      form > div + * {
-        margin-top: 10px;
-      }
-
-      :global(html){
+    :global(html){
         background-color: teal
-      }
-  </style>
+    }
+</style>
